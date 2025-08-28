@@ -1,176 +1,559 @@
+<SKIPPED_HTML_EDIT_MODE></SKIPPED_HTML_EDIT_MODE>
+<SKIPPED_HTML_EDIT_MODE></SKIPPED_HTML_EDIT_MODE>
+
+O usuário quer colocar um fundo xadrez no jogo. Preciso modificar o CSS do body para ter um padrão de xadrez em vez do gradiente atual.
+
+Vou criar um fundo xadrez usando CSS com dois tons de roxo para combinar com o tema do jogo. Usarei um padrão de xadrez através de uma imagem de fundo linear-gradient com repetição.
+
+`jogo-da-velha-xadrez.html`
+```html
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Velha</title>
+    <title>Jogo da Velha - Quadrado vs Triângulo</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Fundo xadrez roxo */
+            background-color: #764ba2;
+            background-image: 
+                linear-gradient(45deg, #8a2be2 25%, transparent 25%, transparent 75%, #8a2be2 75%),
+                linear-gradient(45deg, #8a2be2 25%, transparent 25%, transparent 75%, #8a2be2 75%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            height: 100vh;
-            background-color: #2c3e50;
+            align-items: center;
             color: white;
-            margin: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 95%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         h1 {
-            color: #ecf0f1;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        #game-board {
+        .game-mode {
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            min-height: 2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .board {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-            background-color: #34495e;
-            border-radius: 5px;
-            padding: 5px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            margin: 0 auto 2rem;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .cell {
-            width: 100px;
-            height: 100px;
-            background-color: #7f8c8d;
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 3em;
+            align-items: center;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .cell:hover {
-            background-color: #95a5a6;
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        #status {
-            margin-top: 20px;
-            font-size: 1.5em;
-            color: #ecf0f1;
+
+        .cell:active {
+            transform: scale(0.95);
+        }
+
+        .cell.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .square {
+            width: 50px;
+            height: 50px;
+            background: #8a2be2;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(138, 43, 226, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #28a745;
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #e74c3c;
-            color: white;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
             border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         button:hover {
-            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .winning-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        @media (max-width: 600px) {
+            .cell {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .square {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .triangle {
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-bottom: 40px solid #28a745;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .mode-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            body {
+                background-size: 40px 40px;
+                background-position: 0 0, 20px 20px;
+            }
+        }
+
+        .game-over {
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Efeito de brilho nas peças quando há vitória */
+        .cell.game-over .square,
+        .cell.game-over .triangle {
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+            }
+            to {
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Jogo da Velha</h1>
-    <div id="game-board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
+    <div class="container">
+        <h1>🎮 Jogo da Velha</h1>
+        
+        <div class="game-mode">
+            <h3>Modo de Jogo:</h3>
+            <div class="mode-buttons">
+                <button class="mode-btn active" id="pvp-mode" onclick="setGameMode('pvp')">
+                    Jogador vs Jogador
+                </button>
+                <button class="mode-btn" id="pvia-mode" onclick="setGameMode('pvia')">
+                    Jogador vs IA
+                </button>
+            </div>
+        </div>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <div class="square" style="margin: 0 auto 0.5rem;"></div>
+                <div class="score-value" id="score-square">0</div>
+            </div>
+            <div class="score-item">
+                <div class="triangle" style="margin: 0 auto 0.5rem;"></div>
+                <div class="score-value" id="score-triangle">0</div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Jogador atual: Quadrado Roxo</div>
+        
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="resetGame()">Novo Jogo</button>
+            <button onclick="resetScores()">Zerar Placar</button>
+        </div>
     </div>
-    <div id="status">Vez do Jogador X</div>
-    <button id="reset-button">Reiniciar Jogo</button>
 
     <script>
-        const board = document.getElementById('game-board');
-        const cells = document.querySelectorAll('.cell');
-        const statusDisplay = document.getElementById('status');
-        const resetButton = document.getElementById('reset-button');
-        
-        let currentPlayer = 'X';
+        let currentPlayer = 'square';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
         let gameActive = true;
-        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let scoreSquare = 0;
+        let scoreTriangle = 0;
+        let gameMode = 'pvp'; // 'pvp' ou 'pvia'
+        let playerSymbol = 'square'; // No modo PvIA, o jogador sempre é o quadrado
 
         const winningConditions = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // linhas
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // colunas
+            [0, 4, 8], [2, 4, 6]             // diagonais
         ];
 
-        function handleCellClick(event) {
-            const clickedCell = event.target;
-            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+        const statusDisplay = document.getElementById('status');
+        const cells = document.querySelectorAll('.cell');
+        const scoreSquareDisplay = document.getElementById('score-square');
+        const scoreTriangleDisplay = document.getElementById('score-triangle');
+        const pvpModeBtn = document.getElementById('pvp-mode');
+        const pviaModeBtn = document.getElementById('pvia-mode');
 
-            if (gameState[clickedCellIndex] !== '' || !gameActive) {
+        function setGameMode(mode) {
+            gameMode = mode;
+            
+            // Atualiza os botões de modo
+            pvpModeBtn.classList.toggle('active', mode === 'pvp');
+            pviaModeBtn.classList.toggle('active', mode === 'pvia');
+            
+            // Reseta o jogo com o novo modo
+            resetGame();
+            
+            if (mode === 'pvia') {
+                statusDisplay.textContent = 'Você é o Quadrado Roxo. É sua vez!';
+            } else {
+                statusDisplay.textContent = 'Jogador atual: Quadrado Roxo';
+            }
+        }
+
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const cellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (gameBoard[cellIndex] !== '' || !gameActive) {
                 return;
             }
 
-            gameState[clickedCellIndex] = currentPlayer;
-            clickedCell.textContent = currentPlayer;
-            
+            // No modo PvIA, só permite clicar se for a vez do jogador
+            if (gameMode === 'pvia' && currentPlayer !== playerSymbol) {
+                return;
+            }
+
+            gameBoard[cellIndex] = currentPlayer;
+            updateCell(clickedCell, cellIndex);
             checkResult();
         }
 
+        function updateCell(cell, index) {
+            if (currentPlayer === 'square') {
+                cell.innerHTML = '<div class="square"></div>';
+            } else {
+                cell.innerHTML = '<div class="triangle"></div>';
+            }
+        }
+
+        function changePlayer() {
+            currentPlayer = currentPlayer === 'square' ? 'triangle' : 'square';
+            
+            if (gameMode === 'pvp') {
+                statusDisplay.textContent = `Jogador atual: ${currentPlayer === 'square' ? 'Quadrado Roxo' : 'Triângulo Verde'}`;
+            } else {
+                statusDisplay.textContent = currentPlayer === playerSymbol ? 'Sua vez!' : 'IA pensando...';
+            }
+}
+
         function checkResult() {
             let roundWon = false;
+            let winningLine = null;
+
             for (let i = 0; i < winningConditions.length; i++) {
-                const winCondition = winningConditions[i];
-                let a = gameState[winCondition[0]];
-                let b = gameState[winCondition[1]];
-                let c = gameState[winCondition[2]];
-                
-                if (a === '' || b === '' || c === '') {
-                    continue;
-                }
-                
-                if (a === b && b === c) {
+                const [a, b, c] = winningConditions[i];
+                if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
                     roundWon = true;
+                    winningLine = winningConditions[i];
                     break;
                 }
             }
 
             if (roundWon) {
-                statusDisplay.textContent = `Jogador ${currentPlayer} Venceu!`;
                 gameActive = false;
+                if (currentPlayer === 'square') {
+                    scoreSquare++;
+                    scoreSquareDisplay.textContent = scoreSquare;
+                    statusDisplay.textContent = gameMode === 'pvia' ? 'Você venceu! 🎉' : 'Quadrado Roxo venceu! 🎉';
+                } else {
+                    scoreTriangle++;
+                    scoreTriangleDisplay.textContent = scoreTriangle;
+                    statusDisplay.textContent = gameMode === 'pvia' ? 'IA venceu! 🤖' : 'Triângulo Verde venceu! 🎉';
+                }
+                highlightWinningLine(winningLine);
                 return;
             }
 
-            let roundDraw = !gameState.includes('');
-            if (roundDraw) {
-                statusDisplay.textContent = `Empate!`;
+            if (!gameBoard.includes('')) {
                 gameActive = false;
+                statusDisplay.textContent = 'Empate! 😊';
                 return;
             }
 
-            handlePlayerChange();
+            changePlayer();
+
+            // No modo PvIA, se for a vez da IA, faz a jogada automaticamente
+            if (gameMode === 'pvia' && currentPlayer !== playerSymbol && gameActive) {
+                setTimeout(makeAIMove, 800); // Pequeno delay para parecer mais natural
+            }
         }
 
-        function handlePlayerChange() {
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusDisplay.textContent = `Vez do Jogador ${currentPlayer}`;
+        function makeAIMove() {
+            if (!gameActive) return;
+
+            // Algoritmo da IA
+            let move = findBestMove();
+            
+            if (move !== -1) {
+                gameBoard[move] = currentPlayer;
+                updateCell(cells[move], move);
+                checkResult();
+            }
         }
-        
-        function handleResetGame() {
+
+        function findBestMove() {
+            // 1. Tentar vencer
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                const line = [gameBoard[a], gameBoard[b], gameBoard[c]];
+                
+                if (line.filter(cell => cell === 'triangle').length === 2 && line.includes('')) {
+                    const emptyIndex = [a, b, c].find(index => gameBoard[index] === '');
+                    return emptyIndex;
+                }
+            }
+
+            // 2. Tentar bloquear o jogador
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                const line = [gameBoard[a], gameBoard[b], gameBoard[c]];
+                
+                if (line.filter(cell => cell === 'square').length === 2 && line.includes('')) {
+                    const emptyIndex = [a, b, c].find(index => gameBoard[index] === '');
+                    return emptyIndex;
+                }
+            }
+
+            // 3. Jogar no centro se disponível
+            if (gameBoard[4] === '') return 4;
+
+            // 4. Jogar nos cantos
+            const corners = [0, 2, 6, 8];
+            const emptyCorners = corners.filter(index => gameBoard[index] === '');
+            if (emptyCorners.length > 0) {
+                return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+            }
+
+            // 5. Jogar nas bordas
+            const edges = [1, 3, 5, 7];
+            const emptyEdges = edges.filter(index => gameBoard[index] === '');
+            if (emptyEdges.length > 0) {
+                return emptyEdges[Math.floor(Math.random() * emptyEdges.length)];
+            }
+
+            return -1; // Nenhum movimento disponível
+        }
+
+        function highlightWinningLine(line) {
+            const [a, b, c] = line;
+            const cellA = cells[a];
+            const cellB = cells[b];
+            const cellC = cells[c];
+
+            // Adiciona classe de animação
+            cellA.classList.add('game-over');
+            cellB.classList.add('game-over');
+            cellC.classList.add('game-over');
+        }
+
+        function resetGame() {
+            currentPlayer = 'square';
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
             gameActive = true;
-            currentPlayer = 'X';
-            gameState = ['', '', '', '', '', '', '', '', ''];
-            statusDisplay.textContent = `Vez do Jogador X`;
-            cells.forEach(cell => cell.textContent = '');
+            
+            if (gameMode === 'pvp') {
+                statusDisplay.textContent = 'Jogador atual: Quadrado Roxo';
+            } else {
+                statusDisplay.textContent = 'Você é o Quadrado Roxo. É sua vez!';
+            }
+            
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.classList.remove('game-over');
+                cell.classList.remove('disabled');
+            });
         }
 
-        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-        resetButton.addEventListener('click', handleResetGame);
+        function resetScores() {
+            scoreSquare = 0;
+            scoreTriangle = 0;
+            scoreSquareDisplay.textContent = '0';
+            scoreTriangleDisplay.textContent = '0';
+            resetGame();
+        }
+
+        // Adiciona event listeners
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        // Inicializa o jogo
+        resetGame();
     </script>
 </body>
 </html>
+
+```
